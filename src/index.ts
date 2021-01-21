@@ -12,7 +12,7 @@ export { Wildcard } from './wildcard';
 
 export function assertLooksLike(
     actual: VNode | string,
-    expected: VNode | string | Symbol,
+    expected: VNode | string,
     longError = false
 ): void {
     const valueType = assertNodeType(actual, expected, longError);

@@ -10,8 +10,8 @@ export const InvalidWildcardUsageError = new Error(
 );
 
 export const NodeTypeMismatchedError = (
-    actual: any,
-    expected: any,
+    actual: VNode | string,
+    expected: VNode | string,
     longError: boolean
 ) =>
     new Error(
@@ -23,8 +23,8 @@ export const NodeTypeMismatchedError = (
     );
 
 export const TexNodeMismatchedError = (
-    actual: any,
-    expected: any,
+    actual: VNode | string,
+    expected: VNode | string,
     longError: boolean
 ) =>
     new Error(
@@ -32,8 +32,8 @@ export const TexNodeMismatchedError = (
     );
 
 export const SelectorMismatchedError = (
-    actual: any,
-    expected: any,
+    actual: VNode,
+    expected: VNode,
     longError: boolean
 ) =>
     new Error(
@@ -45,8 +45,8 @@ export const SelectorMismatchedError = (
     );
 
 export const AttributesMismatchedError = (
-    actual: any,
-    expected: any,
+    actual: VNode,
+    expected: VNode,
     longError: boolean
 ) =>
     new Error(
@@ -54,8 +54,8 @@ export const AttributesMismatchedError = (
     );
 
 export const TextMismatchedError = (
-    actual: any,
-    expected: any,
+    actual: VNode,
+    expected: VNode,
     longError: boolean
 ) =>
     new Error(
@@ -67,8 +67,8 @@ export const TextMismatchedError = (
     );
 
 export const NotEnoughChildrenError = (
-    actual: any,
-    expected: any,
+    actual: VNode,
+    expected: VNode,
     longError: boolean
 ) =>
     new Error(
@@ -76,8 +76,8 @@ export const NotEnoughChildrenError = (
     );
 
 export const ChildrenMismatchedError = (
-    actual: any,
-    expected: any,
+    actual: VNode,
+    expected: VNode,
     longError: boolean
 ) =>
     new Error(
@@ -86,19 +86,14 @@ export const ChildrenMismatchedError = (
 
 // TODO: Make diff customizable
 const prettyPrintError = (message: string) => (
-    actual: any,
-    expected: any,
+    actual: VNode | string,
+    expected: VNode | string,
     longError: boolean
 ): string => {
-    const actualSelector = removeGrandchildren(actual);
-    const expectedSelector = isWildcard(expected)
-        ? expected
-        : removeGrandchildren(expected);
-
-    const actualString = JSON.stringify(actualSelector, null, 2);
-    const expectedString = isWildcard(expectedSelector)
+    const actualString = typeof actual === 'string' ? actual : JSON.stringify(removeGrandchildren(actual), null, 2);
+    const expectedString = typeof expected === 'string' ? expected : isWildcard(expected)
         ? 'WILDCARD'
-        : JSON.stringify(expectedSelector, null, 2);
+        : JSON.stringify(removeGrandchildren(expected), null, 2);
 
     const diffString = jsdiff
         .createTwoFilesPatch('', '', expectedString, actualString, '', '')
