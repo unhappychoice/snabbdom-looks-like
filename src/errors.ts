@@ -1,6 +1,7 @@
 import { VNode } from 'snabbdom/vnode';
 import { isWildcard } from './wildcard';
 import * as jsdiff from 'diff';
+import {AssertNodeChildrenResult} from "./asserts/assertNodeChildren";
 
 export const WildCardInActualError = new Error(
     'Wildcards are only allowed in the expected vtree'
@@ -76,13 +77,13 @@ export const NotEnoughChildrenError = (
     );
 
 export const ChildrenMismatchedError = (
-    actual: VNode,
-    expected: VNode,
+    result: AssertNodeChildrenResult,
     longError: boolean
-) =>
-    new Error(
-        prettyPrintError('Children mismatched')(actual, expected, longError)
-    );
+) => {
+    const message = result.errors
+        .map((error, index) => `Error${index}: ${diffString(error.actual, error.expected, longError)}`).join('\n');
+    return new Error(`Children mismatched\n${message}`);
+}
 
 // TODO: Make diff customizable
 const prettyPrintError = (message: string) => (
@@ -90,6 +91,14 @@ const prettyPrintError = (message: string) => (
     expected: VNode | string,
     longError: boolean
 ): string => {
+    return `${message}\n${diffString(actual, expected, longError)}`;
+};
+
+const diffString = (
+    actual: VNode | string,
+    expected: VNode | string,
+    longError: boolean
+) => {
     const actualString = typeof actual === 'string' ? actual : JSON.stringify(removeGrandchildren(actual), null, 2);
     const expectedString = typeof expected === 'string' ? expected : isWildcard(expected)
         ? 'WILDCARD'
@@ -109,8 +118,8 @@ const prettyPrintError = (message: string) => (
         .join('\n');
 
     const additionalString = `\n\nactual:\n${actualString}\n\nexpected:\n${expectedString}`;
-    return `${message}\n${diffString}${longError ? additionalString : ''}`;
-};
+    return `${diffString}${longError ? additionalString : ''}`;
+}
 
 const removeGrandchildren = (vnode: VNode) => ({
     ...vnode,

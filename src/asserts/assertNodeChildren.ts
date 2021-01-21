@@ -15,6 +15,17 @@ type VNodeAssertion = (
 type NodeChildren = (string | VNode)[];
 type Distribution = number[];
 
+export interface AssertNodeChildrenResult {
+    state: 'success' | 'error';
+    errors: EEEE[]
+}
+
+interface EEEE {
+    actual: VNode | string;
+    expected: VNode | string;
+    error: Error;
+}
+
 export const assertNodeChildren: VNodeAssertion = (
     actual,
     expected,
@@ -26,27 +37,31 @@ export const assertNodeChildren: VNodeAssertion = (
     assertWildCardUsage(actual, expected, longError);
     assertChildrenLength(actual, expected, longError);
 
-    const results = preparePossibleExpectedChildren(
+    const results: AssertNodeChildrenResult[] = preparePossibleExpectedChildren(
         actual.children,
         expected.children
-    ).map((expectedChildren) => {
-        try {
-            const actualChildren = actual.children || [];
-            expectedChildren.forEach((expectedChild, i) => {
-                if (!actualChildren[i] || !expectedChildren) throw new Error('Child is undefined');
-
+    ).map((expectedChildren): AssertNodeChildrenResult => {
+        const actualChildren = actual.children || [];
+        const results: ('success'|EEEE)[] = expectedChildren.map((expectedChild, i) => {
+            try {
                 assertLooksLike(actualChildren[i], expectedChild, longError);
-            });
+                return 'success'
+            } catch (error) {
+                if (error.message.includes('Children mismatched')) throw error;
+                return { actual: actualChildren[i], expected: expectedChild, error };
+            }
+        });
 
-            return 'success';
-        } catch (error) {
-            if (error.message.includes('Children mismatched')) throw error;
-            return error;
+        if (expectedChildren.length === results.filter(result => result === 'success').length) {
+            return { state: 'success', errors: [] };
+        } else {
+            return { state: 'error', errors: results.filter(result => result !== 'success') as EEEE[] };
         }
     });
 
-    if (results.indexOf('success') === -1) {
-        throw ChildrenMismatchedError(actual, expected, longError);
+    if (results.map(result => result.state).indexOf('success') === -1) {
+        const result = results.sort((r1, r2) => r1.errors.length - r2.errors.length)[0];
+        throw ChildrenMismatchedError(result, longError);
     }
 };
 
