@@ -31,10 +31,6 @@ export const assertNodeChildren: VNodeAssertion = (
         expected.children
     ).map((expectedChildren) => {
         try {
-            if (expectedChildren.length !== actual.children?.length) {
-                throw ChildrenMismatchedError(actual, expected, longError);
-            }
-
             expectedChildren.forEach((expectedChild, i) =>
                 assertLooksLike(
                     (actual.children || [])[i],
@@ -45,11 +41,14 @@ export const assertNodeChildren: VNodeAssertion = (
 
             return 'success';
         } catch (error) {
+            if (error.message.includes('Children mismatched')) throw error;
             return error;
         }
     });
 
-    if (results.indexOf('success') === -1) throw results[results.length - 1];
+    if (results.indexOf('success') === -1) {
+        throw ChildrenMismatchedError(actual, expected, longError);
+    }
 };
 
 const assertChildrenLength: VNodeAssertion = (actual, expected, longError) => {
