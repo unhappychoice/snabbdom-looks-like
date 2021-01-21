@@ -110,7 +110,7 @@ const prettyPrintError = (message: string) => (
 
     const additionalString = `\n\nactual:\n${actualString}\n\nexpected:\n${expectedString}`;
 
-    return `${message}\n${diffString}${longError ? additionalString : ''}`;
+    return `${message}\n${diffString}${true ? additionalString : ''}`;
 };
 
 const removeGrandchildren = (vnode: VNode) => ({
