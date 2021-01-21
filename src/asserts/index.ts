@@ -22,9 +22,7 @@ export const assertNodeType = (
     expected: VNode | string,
     longError: boolean
 ): NodeType => {
-    if (typeof actual === 'undefined' || typeof expected === 'undefined') {
-        throw NodeTypeMismatchedError(actual, expected, longError);
-    } else if (typeof actual === 'string' && typeof expected === 'string') {
+    if (typeof actual === 'string' && typeof expected === 'string') {
         return 'string';
     } else if (typeof actual === 'string' || typeof expected === 'string') {
         throw NodeTypeMismatchedError(actual, expected, longError);

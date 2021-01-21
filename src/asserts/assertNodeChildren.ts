@@ -31,13 +31,12 @@ export const assertNodeChildren: VNodeAssertion = (
         expected.children
     ).map((expectedChildren) => {
         try {
-            expectedChildren.forEach((expectedChild, i) =>
-                assertLooksLike(
-                    (actual.children || [])[i],
-                    expectedChild,
-                    longError
-                )
-            );
+            const actualChildren = actual.children || [];
+            expectedChildren.forEach((expectedChild, i) => {
+                if (!actualChildren[i] || !expectedChildren) throw new Error('Child is undefined');
+
+                assertLooksLike(actualChildren[i], expectedChild, longError);
+            });
 
             return 'success';
         } catch (error) {
