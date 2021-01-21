@@ -1,7 +1,7 @@
 import { VNode } from 'snabbdom/vnode';
 import { isWildcard } from './wildcard';
 import * as jsdiff from 'diff';
-import {AssertNodeChildrenResult} from "./asserts/assertNodeChildren";
+import { AssertNodeChildrenResult } from './asserts/assertNodeChildren';
 
 export const WildCardInActualError = new Error(
     'Wildcards are only allowed in the expected vtree'
@@ -81,9 +81,17 @@ export const ChildrenMismatchedError = (
     longError: boolean
 ) => {
     const message = result.errors
-        .map((error, index) => `Error${index}: ${diffString(error.actual, error.expected, longError)}`).join('\n');
-    return new Error(`Children mismatched\n${message}`);
-}
+        .map(
+            (error, index) =>
+                `Child not matched ${index}:\n${diffString(
+                    error.actual,
+                    error.expected,
+                    longError
+                )}`
+        )
+        .join('\n\n');
+    return new Error(`Children mismatched\n\n${message}`);
+};
 
 // TODO: Make diff customizable
 const prettyPrintError = (message: string) => (
@@ -99,10 +107,16 @@ const diffString = (
     expected: VNode | string,
     longError: boolean
 ) => {
-    const actualString = typeof actual === 'string' ? actual : JSON.stringify(removeGrandchildren(actual), null, 2);
-    const expectedString = typeof expected === 'string' ? expected : isWildcard(expected)
-        ? 'WILDCARD'
-        : JSON.stringify(removeGrandchildren(expected), null, 2);
+    const actualString =
+        typeof actual === 'string'
+            ? actual
+            : JSON.stringify(removeGrandchildren(actual), null, 2);
+    const expectedString =
+        typeof expected === 'string'
+            ? expected
+            : isWildcard(expected)
+            ? 'WILDCARD'
+            : JSON.stringify(removeGrandchildren(expected), null, 2);
 
     const diffString = jsdiff
         .createTwoFilesPatch('', '', expectedString, actualString, '', '')
@@ -119,7 +133,7 @@ const diffString = (
 
     const additionalString = `\n\nactual:\n${actualString}\n\nexpected:\n${expectedString}`;
     return `${diffString}${longError ? additionalString : ''}`;
-}
+};
 
 const removeGrandchildren = (vnode: VNode) => ({
     ...vnode,

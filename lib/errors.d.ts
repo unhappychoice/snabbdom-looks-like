@@ -1,5 +1,5 @@
 import { VNode } from 'snabbdom/vnode';
-import { AssertNodeChildrenResult } from "./asserts/assertNodeChildren";
+import { AssertNodeChildrenResult } from './asserts/assertNodeChildren';
 export declare const WildCardInActualError: Error;
 export declare const InvalidWildcardUsageError: Error;
 export declare const NodeTypeMismatchedError: (actual: VNode | string, expected: VNode | string, longError: boolean) => Error;
