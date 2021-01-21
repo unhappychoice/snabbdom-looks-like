@@ -1,0 +1,10 @@
+import { VNode } from 'snabbdom/vnode';
+export declare const WildCardInActualError: Error;
+export declare const InvalidWildcardUsageError: Error;
+export declare const NodeTypeMismatchedError: (actual: VNode | string, expected: VNode | string, longError: boolean) => Error;
+export declare const TexNodeMismatchedError: (actual: VNode | string, expected: VNode | string, longError: boolean) => Error;
+export declare const SelectorMismatchedError: (actual: VNode, expected: VNode, longError: boolean) => Error;
+export declare const AttributesMismatchedError: (actual: VNode, expected: VNode, longError: boolean) => Error;
+export declare const TextMismatchedError: (actual: VNode, expected: VNode, longError: boolean) => Error;
+export declare const NotEnoughChildrenError: (actual: VNode, expected: VNode, longError: boolean) => Error;
+export declare const ChildrenMismatchedError: (actual: VNode, expected: VNode, longError: boolean) => Error;
