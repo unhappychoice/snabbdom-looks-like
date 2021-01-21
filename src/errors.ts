@@ -1,6 +1,7 @@
 import { VNode } from 'snabbdom/vnode';
 import { isWildcard } from './wildcard';
 import * as jsdiff from 'diff';
+import diffDefault from 'jest-diff';
 
 export const WildCardInActualError = new Error(
     'Wildcards are only allowed in the expected vtree'
@@ -110,7 +111,14 @@ const prettyPrintError = (message: string) => (
 
     const additionalString = `\n\nactual:\n${actualString}\n\nexpected:\n${expectedString}`;
 
-    return `${message}\n${diffString}${longError ? additionalString : ''}`;
+    const diffString2 = diffDefault(
+        typeof actual === 'string' ? actual : removeGrandchildren(actual),
+        typeof expected === 'string' ? expected : isWildcard(expected)
+            ? 'WILDCARD'
+            : removeGrandchildren(expected)
+    );
+
+    return `${message}\n${diffString2}${longError ? additionalString : ''}`;
 };
 
 const removeGrandchildren = (vnode: VNode) => ({
