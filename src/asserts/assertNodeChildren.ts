@@ -7,6 +7,17 @@ import {
     NotEnoughChildrenError,
 } from '../errors';
 
+export interface AssertNodeChildrenResult {
+  state: 'success' | 'error';
+  errors: AssertError[];
+}
+
+export interface AssertError {
+  actual: VNode | string;
+  expected: VNode | string;
+  error: Error;
+}
+
 type VNodeAssertion = (
     actual: VNode,
     expected: VNode,
@@ -14,17 +25,6 @@ type VNodeAssertion = (
 ) => void;
 type NodeChildren = (string | VNode)[];
 type Distribution = number[];
-
-export interface AssertNodeChildrenResult {
-    state: 'success' | 'error';
-    errors: EEEE[];
-}
-
-interface EEEE {
-    actual: VNode | string;
-    expected: VNode | string;
-    error: Error;
-}
 
 export const assertNodeChildren: VNodeAssertion = (
     actual,
@@ -43,7 +43,7 @@ export const assertNodeChildren: VNodeAssertion = (
     ).map(
         (expectedChildren): AssertNodeChildrenResult => {
             const actualChildren = actual.children || [];
-            const results: ('success' | EEEE)[] = expectedChildren.map(
+            const results: ('success' | AssertError)[] = expectedChildren.map(
                 (expectedChild, i) => {
                     try {
                         assertLooksLike(
@@ -72,7 +72,7 @@ export const assertNodeChildren: VNodeAssertion = (
                     state: 'error',
                     errors: results.filter(
                         (result) => result !== 'success'
-                    ) as EEEE[],
+                    ) as AssertError[],
                 };
             }
         }
